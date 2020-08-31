@@ -35,8 +35,7 @@ RUN rm -rf /var/lib/apt/lists/* \
   && ./configure --prefix=/opt/deps \
   && make \
   && make install \
-# Install libsrtp (Secure Real-time Transport Protocol)
-  && apt-get remove -y libsrtp0-dev \
+# Install libsrtp (Secure Real-time Transport Protocol)  
   && cd / \
   && git clone https://github.com/cisco/libsrtp.git \
   && cd libsrtp \
