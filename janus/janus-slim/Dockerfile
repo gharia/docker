@@ -2,10 +2,9 @@
 #FROM debian@sha256:1b8a66f829a3563f98f941f4e0e2ecc619ad12f22331d297d2a9d1e2f18dc257 AS prebuilder
 FROM debian:buster-slim AS prebuilder
 
-ARG LIBNICE_VERSION="0.1.16"
+ARG LIBNICE_VERSION="0.1.17"
 ARG LIBSRTP_VERSION="v2.3.0"
-ARG LIBWEBSOCKETS_VERSION="v3.2.2"
-ARG USRSCTP_VERSION="0.9.3.0"
+ARG LIBWEBSOCKETS_VERSION="v4.0.20"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -55,16 +54,6 @@ RUN rm -rf /var/lib/apt/lists/* \
   && cmake -DCMAKE_INSTALL_PREFIX:PATH=/opt/deps -DCMAKE_C_FLAGS="-fpic" -DLWS_MAX_SMP=1 -DLWS_IPV6="ON" .. \
   && make \
   && make install \
-# Install usrsctp (Data Channels)
-  && cd / \
-  && git clone https://github.com/sctplab/usrsctp \
-  && cd usrsctp \
-  && git checkout origin/master \
-  && git reset --hard 1c9c82fbe3582ed7c474ba4326e5929d12584005 \
-  && ./bootstrap \
-  && ./configure --prefix=/opt/deps --disable-warnings-as-errors \
-  && make \
-  && make install
 
 #FROM debian:buster-slim AS prebuilder
 FROM debian@sha256:1b8a66f829a3563f98f941f4e0e2ecc619ad12f22331d297d2a9d1e2f18dc257
@@ -73,7 +62,7 @@ LABEL description="Janus Gateway Lean Docker Image"
 
 # COPY VERSION .
 
-ARG JANUS_VERSION="v0.10.3"
+ARG JANUS_VERSION="v0.10.4"
 WORKDIR /opt/
 
 COPY --from=prebuilder /opt .
@@ -119,9 +108,9 @@ RUN rm -rf /var/lib/apt/lists/* \
   --disable-boringssl \
   --disable-rabbitmq \
   --disable-mqtt \
+  --disable-data-channels \
   --enable-rest \
-  --enable-websockets \
-  --enable-data-channels \
+  --enable-websockets \  
   LDFLAGS="-L/opt/deps/lib -Wl,-rpath=/opt/deps/lib" CFLAGS="-I/opt/deps/include" \
   && make \
   && make install \
@@ -145,11 +134,6 @@ RUN rm -rf /var/lib/apt/lists/* \
   && apt-get clean \
   && apt-get autoremove --purge shared-mime-info -y \
   && rm -rf /var/lib/apt/*
-
-
-EXPOSE 7088 8088 8188 8089
-
-EXPOSE 10000-10200/udp
 
 
 CMD /opt/janus/bin/janus
