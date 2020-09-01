@@ -55,7 +55,8 @@ RUN rm -rf /var/lib/apt/lists/* \
   && make install \
 
 #FROM debian:buster-slim AS prebuilder
-FROM debian@sha256:1b8a66f829a3563f98f941f4e0e2ecc619ad12f22331d297d2a9d1e2f18dc257
+#FROM debian@sha256:1b8a66f829a3563f98f941f4e0e2ecc619ad12f22331d297d2a9d1e2f18dc257
+FROM debian:buster-slim
 LABEL maintainer="Goran Jovanov <goran.jovanov@gmail.com>"
 LABEL description="Janus Gateway Lean Docker Image"
 
